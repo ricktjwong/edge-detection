@@ -52,7 +52,10 @@ public class Main {
                 double peri = Imgproc.arcLength(mop, true);
 
                 MatOfPoint2f approx = new MatOfPoint2f();
-                Imgproc.approxPolyDP(mop, approx, 0.02 * peri, true);
+                System.out.println(peri);
+                Double epsilon = peri * 0.02;
+                System.out.println(epsilon);
+                Imgproc.approxPolyDP(mop, approx, epsilon, true);
 
                 if (area > max_area && approx.toArray().length == 4) {
                     MatOfPoint2f biggest = approx;
@@ -98,15 +101,13 @@ public class Main {
         Rect rect = new Rect(x_min, y_min, x_max - x_min, y_max - y_min);
         Mat croppedMat = new Mat(img, rect);
 
-        contours = new ArrayList<>();
-
-        Imgproc.drawContours(img, contours, num, new Scalar(0,0,255));
+        Imgproc.drawContours(img, contours, num, new Scalar(0,0,255), 3);
         Imgcodecs.imwrite(folderPath + fileName + "-contoursDrawn" + ".png", img);
         Imgcodecs.imwrite(folderPath + fileName + "-cropped" + ".png", croppedMat);
 
     }
 
     public static void main(String[] args) {
-        getRect("test1");
+        getRect(args[0]);
     }
 }
