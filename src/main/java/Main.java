@@ -1,6 +1,8 @@
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.ximgproc.StructuredEdgeDetection;
+import org.opencv.ximgproc.Ximgproc;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,24 +22,36 @@ public class Main {
         int imgArea = rectangle.width() * rectangle.height();
         Mat img = rectangle.clone();
 
-        Mat imgGray = new Mat();
-
-        Imgproc.cvtColor(img, imgGray, Imgproc.COLOR_BGR2GRAY);
-        Imgcodecs.imwrite(folderPath + fileName + "-BGR2GRAY" + ".png", imgGray);
-
-        Imgproc.GaussianBlur(imgGray, imgGray, new Size(5, 5), 0);
-        Imgcodecs.imwrite(folderPath + fileName + "-gaussianBlur" + ".png", imgGray);
-
-        Mat threshedImg = new Mat();
-        Imgproc.adaptiveThreshold(imgGray, threshedImg, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc
-                .THRESH_BINARY, 11, 2);
-        Imgcodecs.imwrite(folderPath + fileName + "-adaptiveThreshold" + ".png", threshedImg);
-
+//        Mat imgGray = new Mat();
+//
+//        Imgproc.cvtColor(img, imgGray, Imgproc.COLOR_BGR2GRAY);
+//        Imgcodecs.imwrite(folderPath + fileName + "-BGR2GRAY" + ".png", imgGray);
+//
+//        Imgproc.GaussianBlur(imgGray, imgGray, new Size(5, 5), 0);
+//        Imgcodecs.imwrite(folderPath + fileName + "-gaussianBlur" + ".png", imgGray);
+//
+//        Mat threshedImg = new Mat();
+////        Imgproc.adaptiveThreshold(imgGray, threshedImg, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc
+////                .THRESH_BINARY, 11, 2);
+////        Imgcodecs.imwrite(folderPath + fileName + "-adaptiveThreshold" + ".png", threshedImg);
+//
+//        Imgproc.threshold(imgGray, threshedImg, 0, 255, Imgproc.THRESH_BINARY+Imgproc.THRESH_OTSU);
+//        Imgcodecs.imwrite(folderPath + fileName + "-binaryThreshold" + ".png", threshedImg);
+//
         List<MatOfPoint> contours = new ArrayList<>();
-        Mat hierarchy = new Mat();
+//        Mat hierarchy = new Mat();
+//
+//        Imgproc.findContours(threshedImg, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+//        Imgcodecs.imwrite(folderPath + fileName + "-contours" + ".png", hierarchy);
 
-        Imgproc.findContours(threshedImg, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
-        Imgcodecs.imwrite(folderPath + fileName + "-contours" + ".png", hierarchy);
+        StructuredEdgeDetection pDollar = Ximgproc.createStructuredEdgeDetection("/usr/local/hicoden/test/model.yml");
+        Mat src = new Mat();
+        img.convertTo(src, CvType.CV_32F, 1.0 / 255.0);
+        Mat edges = new Mat(src.size(), src.type());
+        pDollar.detectEdges(src, edges);
+        Mat output = new Mat();
+        edges.convertTo(output, CvType.CV_8UC1, 255.0);
+        Imgproc.findContours(output, contours, new Mat(),Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
 
         double max_area = 0;
         int num = 0;
